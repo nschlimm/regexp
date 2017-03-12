@@ -88,12 +88,17 @@ assertContains "echo 'blu blu blu' | ( grep -o $regexp && echo 'success' ) || ec
 assertContains "echo 'blu blu -blu' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "fail" 
 assertContains "echo 'blu blu' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "fail" 
 
-regexp="'\(\<[^ ]\+\>\(\s\)\?\)\{3\}'"
+regexp="'\(\<[^ ]\+\>\(\s\)\?\)\{3\}'" # -> '-' zählt nicht zum Wort dazu
 echo "***************** $regexp ****************"
 assertContains "echo 'bla bla bla bla' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "bla bla bla" # -> quantifier ist nicht 'zwingend' -> matched auch bei vier mal
 assertContains "echo 'bla bla bla ' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "bla bla bla" 
 assertContains "echo 'bla bla bla' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "bla bla bla" 
-assertContains "echo 'bla bla -bla' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "fail" # -> zählt - am wortbeginn nicht als wort 
-assertContains "echo 'bla bla -bla bla' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "fail" # -> zählt - am wortbeginn nicht als wort & 'bla' muss drei mal nacheinander kommen !
-assertContains "echo 'bla bla bla-bla' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "bla bla bla-bla" # zählt - mitten drin als wort 
+assertContains "echo '-bla bla bla' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "bla bla bla" # -> zählt '-' am Anfang der Wörter nicht mit 
+assertContains "echo 'bla bla -bla' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "fail" # -> zählt '-' am wortbeginn nicht als wort 
+assertContains "echo 'bla bla -bla bla' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "fail" # -> zählt '-'' am wortbeginn nicht als wort & 'bla' muss drei mal nacheinander kommen !
+assertContains "echo 'bla bla bla-bla' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "bla bla bla-bla" # zählt '-' mitten drin als wort 
 assertContains "echo 'bla bla' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "fail" 
+
+regexp="'\(\<.*\>\(\s\)\?\)\{3\}'" # -> '-' zählt nicht zum Wort dazu
+echo "***************** $regexp ****************"
+assertContains "echo '-bla bla bla' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "bla bla bla" # -> zählt '-' am Anfang der Wörter nicht mit 

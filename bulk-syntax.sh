@@ -29,28 +29,16 @@ input="--purge undnochwas"
 assertContains "echo $input | sed -e 's/[[:space:]]*$//' | ( grep -o $regexp && echo 'sucess' ) || echo 'fail'" "fail"
 
 # git command
-regexp="'\-g \(\-w \<[^ ]\+\>\)\? \<[^ ]\+\>$'"
+regexp="'\(\-g \)\?\(\-w \<[^ ]\+\>\(\s\)\?\)\?\(\s\)\?\(\<[^ ]\+\>\(\s\)\?\)\{2,\}'"
 input="-g -w bla bla"
 assertContains "echo $input | sed -e 's/[[:space:]]*$//' | ( grep -o $regexp && echo 'sucess' ) || echo 'fail'" "sucess"
 input="-g -w bla"
-assertContains "echo $input | sed -e 's/[[:space:]]*$//' | ( grep -o $regexp && echo 'sucess' ) || echo 'fail'" "fail"
+assertContains "echo $input | sed -e 's/[[:space:]]*$//' | ( grep -o $regexp && echo 'sucess' ) || echo 'fail'" "w bla"
 input="-g -w -bla bla"
-assertContains "echo $input | sed -e 's/[[:space:]]*$//' | ( grep -o $regexp && echo 'sucess' ) || echo 'fail'" "fail"
+assertContains "echo $input | sed -e 's/[[:space:]]*$//' | ( grep -o $regexp && echo 'sucess' ) || echo 'fail'" "bla bla"
 input="-g bla bla"
 assertContains "echo $input | sed -e 's/[[:space:]]*$//' | ( grep -o $regexp && echo 'sucess' ) || echo 'fail'" "sucess"
 input="bla bla"
 assertContains "echo $input | sed -e 's/[[:space:]]*$//' | ( grep -o $regexp && echo 'sucess' ) || echo 'fail'" "sucess"
 input="-w bla bla"
 assertContains "echo $input | sed -e 's/[[:space:]]*$//' | ( grep -o $regexp && echo 'sucess' ) || echo 'fail'" "sucess"
-
-# --addcurrent und --removeworkspace
-regexp='(\-\-addcurrent\( \[^\s\]\)?$)\|(\-\-removeworkspace$)'
-regexp='\(\(\-\-addcurrent\)\|\(\-\-removeworkspace\)\s?[^\s]+$'
-input="--addcurrent bla"
-assertContains "echo ${input/% */} | ( grep -o '(\-\-listall$)\|(\-\-purge$)' && echo 'sucess' ) || echo 'fail'" "sucess"
-input="--addcurrent"
-assertContains "echo ${input/% */} | ( grep -o '(\-\-listall$)\|(\-\-purge$)' && echo 'sucess' ) || echo 'fail'" "fail"
-input="--addcurrent "
-assertContains "echo ${input/% */} | ( grep -o '(\-\-listall$)\|(\-\-purge$)' && echo 'sucess' ) || echo 'fail'" "fail"
-input="--addcurrent bla bla"
-assertContains "echo ${input/% */} | ( grep -o '(\-\-listall$)\|(\-\-purge$)' && echo 'sucess' ) || echo 'fail'" "fail"
