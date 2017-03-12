@@ -99,6 +99,20 @@ assertContains "echo 'bla bla -bla bla' | ( grep -o $regexp && echo 'success' ) 
 assertContains "echo 'bla bla bla-bla' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "bla bla bla-bla" # zählt '-' mitten drin als wort 
 assertContains "echo 'bla bla' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "fail" 
 
-regexp="'\(\<.*\>\(\s\)\?\)\{3\}'" # -> '-' zählt nicht zum Wort dazu
+regexp="'\(\<.*\>\(\s\)\?\)\{3\}'" # -> führendes '-' zählt nicht zum Wort dazu
 echo "***************** $regexp ****************"
 assertContains "echo '-bla bla bla' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "bla bla bla" # -> zählt '-' am Anfang der Wörter nicht mit 
+
+regexp="'\(\<[^ ]\+\>\(\s\)\?\)'" # -> führendes '-' zählt nicht zum Wort dazu
+echo "***************** $regexp ****************"
+assertContains "echo 'bla1 bla2 bla3' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "bla" 
+assertNotContains "echo 'bla1 -bla2 bla3' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "\-bla" # matched drei mal bla (ohne '-')
+assertContains "echo 'bla1 bl-a2 bla3' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "bl-a2" 
+assertContains "echo 'bla1 bla2 bla3' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "bla" 
+
+regexp="'\(\b[^ ]\+\b\(\s\)\?\)'" # -> führendes '-' zählt zum Wort dazu
+echo "***************** $regexp ****************"
+assertContains "echo 'bla1 bla2 bla3' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "bla" 
+assertContains "echo 'bla1 -bla2 bla3' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "\-bla" # mit der \b boubdary klappt es -> er erkennt das führende '-' als teil des wortes
+assertContains "echo 'bla1 bl-a2 bla3' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "bl-a2" 
+assertContains "echo 'bla1 bla2 bla3' | ( grep -o $regexp && echo 'success' ) || echo 'fail'" "bla" 
